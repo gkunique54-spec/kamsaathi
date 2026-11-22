@@ -1,0 +1,13 @@
+{
+  "name": "kaamsaathi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "KAAMSAATHI — Har Samasya Ka Sahi Raasta (Bilingual everyday problem-solving assistant)",
+  "type": "module",
+  "scripts": {
+    "start": "echo \"Static frontend + serverless /api/ask ready\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
