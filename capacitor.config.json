@@ -1,0 +1,8 @@
+{
+  "appId": "com.kaamsaathi.app",
+  "appName": "KAAMSAATHI",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
