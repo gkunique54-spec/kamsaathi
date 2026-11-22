@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KAAMSAATHI — Har Samasya Ka Sahi Raasta</title>
+  <style>
+    :root {
+      --primary: #0F3D68;
+      --primary-dark: #092744;
+      --accent: #0D9488;
+      --accent-soft: #CCFBF1;
+      --bg: #F4F7FA;
+      --card: #FFFFFF;
+      --text: #111827;
+      --muted: #4B5563;
+      --border: #E5E7EB;
+      --warn-bg: #FEF3C7;
+      --warn-text: #92400E;
+      --danger-bg: #FEE2E2;
+      --danger-text: #991B1B;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+      background: #D1D5DB;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Onboarding Modal */
+    .onboarding {
+      position: fixed;
+      inset: 0;
+      background: var(--card);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 20px;
+      max-width: 480px;
+      margin: 0 auto;
+      overflow-y: auto;
+    }
+
+    .onboarding.hidden {
+      display: none;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      background: #E0F2FE;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .brand-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0 0 6px;
+    }
+
+    .tagline {
+      font-size: 15px;
+      color: var(--accent);
+      font-weight: 700;
+      margin: 0 0 18px;
+    }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .lang-btn {
+      padding: 14px 12px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      min-height: 52px;
+    }
+
+    .lang-btn.active {
+      border-color: var(--primary);
+      background: #EFF6FF;
+      color: var(--primary);
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .info-item {
+      background: var(--bg);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .warn-box {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border: 1px solid #F59E0B;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    /* Top Header */
+    .topbar {
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar-left h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-left p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #CBD5E1;
+    }
+
+    .lang-toggle {
+      background: rgba(255, 255, 255, 0.16);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 38px;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 14px 14px 140px;
+      overflow-y: auto;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .greeting {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+
+    textarea, input[type="text"], select {
+      width: 100%;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--text);
+      background: #FFFFFF;
+    }
+
+    textarea:focus, input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .input-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-secondary {
+      background: #E5E7EB;
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+
+    .chips-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      min-height: 48px;
+    }
+
+    .chip:active {
+      background: #EFF6FF;
+      border-color: var(--primary);
+    }
+
+    /* Chat & AI Structured Card */
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .msg-user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 12px 14px;
+      border-radius: 16px 16px 4px 16px;
+      max-width: 88%;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .ai-card {
+      background: var(--card);
+      border: 1.5px solid #CBD5E1;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .ai-block {
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #E5E7EB;
+    }
+
+    .ai-block:last-of-type {
+      border-bottom: none;
+    }
+
+    .ai-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .ai-text {
+      font-size: 15px;
+      line-height: 1.5;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .ai-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mini-btn {
+      border: 1px solid #CBD5E1;
+      background: #F9FAFB;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 40px;
+    }
+
+    .mini-btn.save {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    /* Case & Guide Cards */
+    .list-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: #0F766E;
+      margin-bottom: 6px;
+    }
+
+    .checklist-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    /* Safe Ad Slot + Bottom Nav */
+    .bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      z-index: 30;
+      background: var(--card);
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .ad-banner-slot {
+      background: #F1F5F9;
+      border-top: 1px solid #CBD5E1;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ad-tag {
+      background: #E2E8F0;
+      color: #334155;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border-top: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 56px;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+      background: #EFF6FF;
+    }
+
+    .nav-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .status-msg {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Onboarding Screen -->
+    <section id="onboarding" class="onboarding">
+      <div>
+        <span class="brand-badge">INDIA • BILINGUAL</span>
+        <h2 class="brand-title">KAAMSAATHI</h2>
+        <p class="tagline" id="obTagline">Har Samasya Ka Sahi Raasta</p>
+
+        <div class="lang-grid">
+          <button type="button" class="lang-btn active" id="obLangHi" onclick="setLanguage('hi')">हिंदी में शुरू करें</button>
+          <button type="button" class="lang-btn" id="obLangEn" onclick="setLanguage('en')">Start in English</button>
+        </div>
+
+        <div class="info-list">
+          <div class="info-item" id="obPoint1">1. Kisi bhi rozmarra ki samasya ka step-by-step raasta samjhein.</div>
+          <div class="info-item" id="obPoint2">2. Zaroori documents ki checklist aur bharosemand source links paayein.</div>
+          <div class="info-item" id="obPoint3">3. Apne kaam ko "My Cases" mein save karke aage badhayein.</div>
+        </div>
+
+        <div class="warn-box" id="obDisclaimer">
+          <strong>Zaroori Suchna:</strong> Yeh kisi sarkari vibhag, bank, court ya company ka official app nahi hai. OTP, UPI PIN, ATM PIN, CVV ya password kabhi na batayein.
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="obStartBtn" onclick="completeOnboarding()">
+        Aage Badhein / Continue →
+      </button>
+    </section>
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>KAAMSAATHI</h1>
+        <p id="topSub">Har Samasya Ka Sahi Raasta</p>
+      </div>
+      <button type="button" class="lang-toggle" id="topLangBtn" onclick="toggleLanguage()">
+        हिंदी / EN
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- TAB 1: HOME -->
+      <section id="tab-home" class="tab-panel active">
+        <div class="card">
+          <h2 class="greeting" id="homeGreeting">Namaste! Aaj kis samasya mein madad chahiye?</h2>
+          <textarea
+            id="homeProblemInput"
+            rows="3"
+            placeholder="Apni koi bhi problem yahan likhein..."
+          ></textarea>
+
+          <div class="input-actions">
+            <button type="button" class="btn btn-secondary" onclick="startVoiceInput('homeProblemInput')">
+              🎤 <span id="voiceLabel1">Bolkar Poochein</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="triggerPhotoWarning()">
+              📷 <span id="photoLabel1">Photo Bhejein</span>
+            </button>
+          </div>
+          <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)" />
+
+          <div style="margin-top: 10px;">
+            <button type="button" class="btn btn-primary" onclick="submitFromHome()">
+              ➤ <span id="solveBtnLabel">Sahi Raasta Dekhein</span>
+            </button>
+          </div>
+          <div id="homeNotice" class="status-msg"></div>
+        </div>
+
+        <h3 class="section-title" id="popularTitle">Aksar Pooche Jaane Wale Vishay</h3>
+        <div class="chips-grid">
+          <button type="button" class="chip" onclick="quickAsk('Bank ya UPI payment kat gaya lekin samne wale ko nahi mila, ab kya karoon?')">🏦 Bank &amp; UPI</button>
+          <button type="button" class="chip" onclick="quickAsk('Sarkari form bharne ke liye kaunse zaroori documents aur official portal chahiye?')">📄 Sarkari Form</button>
+          <button type="button" class="chip" onclick="quickAsk('Phone mein internet, hotspot ya app error aa raha hai, kaise theek karoon?')">📱 Mobile &amp; Tech</button>
+          <button type="button" class="chip" onclick="quickAsk('Bijli bill, consumer complaint ya kisi aur rozmarra ke kaam mein kya step loon?')">✨ Har Samasya</button>
+        </div>
+
+        <h3 class="section-title" id="recentCasesTitle">Haal Ke Saved Cases</h3>
+        <div id="homeRecentCases"></div>
+      </section>
+
+      <!-- TAB 2: ASK AI -->
+      <section id="tab-ask" class="tab-panel">
+        <div class="card" style="padding: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <strong id="askHeaderTitle">Ask AI — Har Samasya Ka Hal</strong>
+            <button type="button" class="mini-btn" onclick="clearChat()">🗑 <span id="clearChatLabel">Clear</span></button>
+          </div>
+        </div>
+
+        <div id="chatBox" class="chat-box"></div>
+
+        <div class="card" style="padding: 12px;">
+          <textarea
+            id="askInput"
+            rows="2"
+            placeholder="Koi bhi samasya likhein ya bolein..."
+          ></textarea>
+          <div class="input-actions">
+            <button type="button" class="btn btn-secondary" onclick="startVoiceInput('askInput')">
+              🎤 <span id="voiceLabel2">Voice</span>
+            </button>
+            <button type="button" class="btn btn-accent" onclick="sendChatMessage()">
+              ➤ <span id="sendBtnLabel">Bhejein</span>
+            </button>
+          </div>
+          <div id="askStatus" class="status-msg"></div>
+        </div>
+      </section>
+
+      <!-- TAB 3: MY CASES -->
+      <section id="tab-cases" class="tab-panel">
+        <div class="card">
+          <h2 class="section-title" id="casesTitle">My Cases (Saved Kaam)</h2>
+          <input
+            type="text"
+            id="caseSearchInput"
+            placeholder="Case search karein..."
+            oninput="renderCases()"
+          />
+        </div>
+        <div id="casesList"></div>
+      </section>
+
+      <!-- TAB 4: GUIDES -->
+      <section id="tab-guides" class="tab-panel">
+        <div class="card">
+          <h2 class="section-title" id="guidesTitle">Bharosemand Guides</h2>
+          <p style="margin:0; font-size:14px; color:var(--muted);" id="guidesSubtitle">
+            Niyam aur portal badal sakte hain; aage badhne se pehle official source zaroor check karein.
+          </p>
+        </div>
+        <div id="guidesList"></div>
+      </section>
+
+      <!-- TAB 5: PROFILE -->
+      <section id="tab-profile" class="tab-panel">
+        <div class="card">
+          <h2 class="section-title" id="profileTitle">Profile &amp; Settings</h2>
+          <label style="display:block; font-size:14px; font-weight:700; margin-bottom:6px;" id="prefLangLabel">
+            Preferred Language
+          </label>
+          <select id="profileLangSelect" onchange="setLanguage(this.value)">
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+
+        <div class="warn-box" id="profileSafetyBox">
+          <strong>Suraksha &amp; Privacy:</strong> Hum kabhi OTP, UPI PIN, ATM PIN, CVV ya password nahi maangte. Aap apna data kabhi bhi delete kar sakte hain.
+        </div>
+
+        <div class="card">
+          <button type="button" class="btn btn-danger" onclick="deleteAllUserData()">
+            🗑 <span id="deleteAllLabel">Delete All My Data</span>
+          </button>
+          <div id="profileStatus" class="status-msg"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Safe Ad Slot + 5 Bottom Tabs -->
+    <div class="bottom-dock">
+      <div class="ad-banner-slot" aria-label="Advertisement slot">
+        <span><span class="ad-tag">AD</span> AdMob + Mediation Ready Slot</span>
+        <span id="adPolicyNote">Safe Zone</span>
+      </div>
+      <nav class="bottom-nav" aria-label="Main Navigation">
+        <button type="button" class="nav-btn active" id="nav-home" onclick="switchTab('home')">
+          <span class="nav-icon">🏠</span>
+          <span id="navHomeLabel">Home</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-ask" onclick="switchTab('ask')">
+          <span class="nav-icon">💬</span>
+          <span id="navAskLabel">Ask AI</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-cases" onclick="switchTab('cases')">
+          <span class="nav-icon">📁</span>
+          <span id="navCasesLabel">My Cases</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-guides" onclick="switchTab('guides')">
+          <span class="nav-icon">📘</span>
+          <span id="navGuidesLabel">Guides</span>
+        </button>
+        <button type="button" class="nav-btn" id="nav-profile" onclick="switchTab('profile')">
+          <span class="nav-icon">👤</span>
+          <span id="navProfileLabel">Profile</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "kaamsaathi_state_v1";
+
+    const DEFAULT_GUIDES = [
+      {
+        id: "g1",
+        categoryHi: "Bank & UPI",
+        categoryEn: "Bank & UPI",
+        titleHi: "UPI Payment Kat Gaya Par Mila Nahi — Kya Karein?",
+        titleEn: "UPI Amount Debited But Not Credited — Next Steps",
+        updated: "22/11/2026",
+        stepsHi: "1. Transaction ID / UTR note karein.\n2. Apne UPI app ya bank ke complaint option mein reference number ke saath ticket raise karein.\n3. Zaroorat padne par bank ya NPCI/official bank channel par status track karein.",
+        stepsEn: "1. Note down the Transaction ID / UTR.\n2. Raise a complaint inside your UPI app or bank support with reference details.\n3. Track status via official bank/payment channels.",
+        source: "RBI / Official Bank & UPI Support Channels"
+      },
+      {
+        id: "g2",
+        categoryHi: "Sarkari Form",
+        categoryEn: "Government Forms",
+        titleHi: "Sarkari Form Bharne Se Pehle Documents Ki Tayari",
+        titleEn: "Document Checklist Before Filling Government Forms",
+        updated: "22/11/2026",
+        stepsHi: "1. Official portal ka URL sahi hai ya nahi, verify karein.\n2. Zaroori ID, address, photo aur mobile/email details ek jagah rakhein.\n3. Form submit karne se pehle spelling aur details dobara check karein.",
+        stepsEn: "1. Verify that you are on the official portal URL.\n2. Keep required ID, address, photo, and contact details ready.\n3. Double-check spellings and fields before final submission.",
+        source: "Respective Official Government Portals"
+      },
+      {
+        id: "g3",
+        categoryHi: "Mobile & Tech",
+        categoryEn: "Mobile & Tech",
+        titleHi: "Mobile Network, Hotspot Ya App Error Theek Karne Ke Steps",
+        titleEn: "Basic Steps to Fix Mobile Network, Hotspot & App Errors",
+        updated: "22/11/2026",
+        stepsHi: "1. Airplane mode 10 second ke liye ON karke OFF karein.\n2. Storage, internet data aur app permissions check karein.\n3. App/phone restart karein; OTP ya password kisi ko share na karein.",
+        stepsEn: "1. Toggle Airplane Mode ON for 10 seconds and back OFF.\n2. Check storage, data connection, and required permissions.\n3. Restart the app/device; never share OTP or passwords.",
+        source: "Device Manufacturer & Official App Help"
+      }
+    ];
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            lang: parsed.lang || "hi",
+            onboarded: Boolean(parsed.onboarded),
+            cases: Array.isArray(parsed.cases) ? parsed.cases : [],
+            messages: Array.isArray(parsed.messages) ? parsed.messages : []
+          };
+        }
+      } catch (e) {}
+      return {
+        lang: "hi",
+        onboarded: false,
+        cases: [],
+        messages: []
+      };
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function setLanguage(lang) {
+      state.lang = lang === "en" ? "en" : "hi";
+      saveState();
+      applyTranslations();
+    }
+
+    function toggleLanguage() {
+      setLanguage(state.lang === "hi" ? "en" : "hi");
+    }
+
+    function completeOnboarding() {
+      state.onboarded = true;
+      saveState();
+      document.getElementById("onboarding").classList.add("hidden");
+    }
+
+    function applyTranslations() {
+      const isHi = state.lang === "hi";
+      document.documentElement.lang = isHi ? "hi" : "en";
+      document.getElementById("obLangHi").classList.toggle("active", isHi);
+      document.getElementById("obLangEn").classList.toggle("active", !isHi);
+      document.getElementById("profileLangSelect").value = state.lang;
+
+      if (!state.onboarded) {
+        document.getElementById("onboarding").classList.remove("hidden");
+      } else {
+        document.getElementById("onboarding").classList.add("hidden");
+      }
+
+      document.getElementById("obTagline").textContent = isHi
+        ? "Har Samasya Ka Sahi Raasta"
+        : "The Right Path for Every Problem";
+      document.getElementById("obPoint1").textContent = isHi
+        ? "1. Kisi bhi rozmarra ki samasya ka step-by-step raasta samjhein."
+        : "1. Understand step-by-step next steps for everyday problems.";
+      document.getElementById("obPoint2").textContent = isHi
+        ? "2. Zaroori documents ki checklist aur bharosemand source links paayein."
+        : "2. Get document checklists and official source guidance.";
+      document.getElementById("obPoint3").textContent = isHi
+        ? "3. Apne kaam ko 'My Cases' mein save karke aage badhayein."
+        : "3. Save and track your tasks inside 'My Cases'.";
+      document.getElementById("obDisclaimer").innerHTML = isHi
+        ? "<strong>Zaroori Suchna:</strong> Yeh kisi sarkari vibhag, bank, court ya company ka official app nahi hai. OTP, UPI PIN, ATM PIN, CVV ya password kabhi na batayein."
+        : "<strong>Important Notice:</strong> This is not an official government, bank, or company app. Never share OTP, UPI PIN, ATM PIN, CVV, or passwords.";
+      document.getElementById("obStartBtn").textContent = isHi
+        ? "Aage Badhein →"
+        : "Continue →";
+
+      document.getElementById("topSub").textContent = isHi
+        ? "Har Samasya Ka Sahi Raasta"
+        : "Right Path for Every Problem";
+      document.getElementById("homeGreeting").textContent = isHi
+        ? "Namaste! Aaj kis samasya mein madad chahiye?"
+        : "Hello! Which problem do you need help with today?";
+      document.getElementById("homeProblemInput").placeholder = isHi
+        ? "Apni koi bhi problem yahan likhein..."
+        : "Type any everyday problem here...";
+      document.getElementById("voiceLabel1").textContent = isHi ? "Bolkar Poochein" : "Voice Input";
+      document.getElementById("photoLabel1").textContent = isHi ? "Photo Bhejein" : "Upload Photo";
+      document.getElementById("solveBtnLabel").textContent = isHi ? "Sahi Raasta Dekhein" : "Get Guidance";
+      document.getElementById("popularTitle").textContent = isHi
+        ? "Aksar Pooche Jaane Wale Vishay"
+        : "Common Topics";
+      document.getElementById("recentCasesTitle").textContent = isHi
+        ? "Haal Ke Saved Cases"
+        : "Recent Saved Cases";
+
+      document.getElementById("askHeaderTitle").textContent = isHi
+        ? "Ask AI — Har Samasya Ka Hal"
+        : "Ask AI — Everyday Problem Solver";
+      document.getElementById("clearChatLabel").textContent = isHi ? "Clear" : "Clear";
+      document.getElementById("askInput").placeholder = isHi
+        ? "Koi bhi samasya likhein ya bolein..."
+        : "Type or speak your question...";
+      document.getElementById("voiceLabel2").textContent = isHi ? "Voice" : "Voice";
+      document.getElementById("sendBtnLabel").textContent = isHi ? "Bhejein" : "Send";
+
+      document.getElementById("casesTitle").textContent = isHi
+        ? "My Cases (Saved Kaam)"
+        : "My Cases (Saved Records)";
+      document.getElementById("caseSearchInput").placeholder = isHi
+        ? "Case search karein..."
+        : "Search saved cases...";
+
+      document.getElementById("guidesTitle").textContent = isHi
+        ? "Bharosemand Guides"
+        : "Verified Step-by-Step Guides";
+      document.getElementById("guidesSubtitle").textContent = isHi
+        ? "Niyam aur portal badal sakte hain; aage badhne se pehle official source zaroor check karein."
+        : "Rules and portals may change; always verify via official sources before acting.";
+
+      document.getElementById("profileTitle").textContent = isHi
+        ? "Profile & Settings"
+        : "Profile & Settings";
+      document.getElementById("prefLangLabel").textContent = isHi
+        ? "Preferred Language / Pasandida Bhasha"
+        : "Preferred Language";
+      document.getElementById("profileSafetyBox").innerHTML = isHi
+        ? "<strong>Suraksha &amp; Privacy:</strong> Hum kabhi OTP, UPI PIN, ATM PIN, CVV ya password nahi maangte. Aap apna data kabhi bhi delete kar sakte hain."
+        : "<strong>Safety &amp; Privacy:</strong> We never ask for OTP, UPI PIN, ATM PIN, CVV, or passwords. You can delete your data anytime.";
+      document.getElementById("deleteAllLabel").textContent = isHi
+        ? "Delete All My Data"
+        : "Delete All My Data";
+
+      document.getElementById("navHomeLabel").textContent = isHi ? "Home" : "Home";
+      document.getElementById("navAskLabel").textContent = isHi ? "Ask AI" : "Ask AI";
+      document.getElementById("navCasesLabel").textContent = isHi ? "My Cases" : "My Cases";
+      document.getElementById("navGuidesLabel").textContent = isHi ? "Guides" : "Guides";
+      document.getElementById("navProfileLabel").textContent = isHi ? "Profile" : "Profile";
+
+      renderChat();
+      renderCases();
+      renderGuides();
+    }
+
+    function switchTab(tabName) {
+      const tabs = ["home", "ask", "cases", "guides", "profile"];
+      tabs.forEach((t) => {
+        document.getElementById("tab-" + t).classList.toggle("active", t === tabName);
+        document.getElementById("nav-" + t).classList.toggle("active", t === tabName);
+      });
+      if (tabName === "cases") renderCases();
+      if (tabName === "guides") renderGuides();
+    }
+
+    function quickAsk(text) {
+      document.getElementById("askInput").value = text;
+      switchTab("ask");
+      sendChatMessage();
+    }
+
+    function submitFromHome() {
+      const val = document.getElementById("homeProblemInput").value.trim();
+      const notice = document.getElementById("homeNotice");
+      if (!val) {
+        notice.textContent = state.lang === "hi"
+          ? "Kripya pehle apni samasya likhein ya voice/topic chunein."
+          : "Please enter a problem or pick a topic first.";
+        return;
+      }
+      notice.textContent = "";
+      document.getElementById("homeProblemInput").value = "";
+      document.getElementById("askInput").value = val;
+      switchTab("ask");
+      sendChatMessage();
+    }
+
+    function startVoiceInput(targetId) {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const target = document.getElementById(targetId);
+      if (!SpeechRec) {
+        alert(state.lang === "hi"
+          ? "Is browser mein direct voice recognition available nahi hai. Aap keyboard ka mic button ya text input use kar sakte hain."
+          : "Direct speech recognition is not supported in this browser. Please type or use your keyboard mic.");
+        return;
+      }
+      const rec = new SpeechRec();
+      rec.lang = state.lang === "hi" ? "hi-IN" : "en-IN";
+      rec.interimResults = false;
+      rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const confirmed = confirm(
+          (state.lang === "hi" ? "Kya yeh text sahi hai?\n\n" : "Confirm transcript:\n\n") + transcript
+        );
+        if (confirmed) {
+          target.value = transcript;
+        }
+      };
+      rec.onerror = () => {
+        alert(state.lang === "hi"
+          ? "Voice sunne mein dikkat aayi. Kripya dobara try karein ya likh kar bhejein."
+          : "Could not capture voice. Please try again or type your issue.");
+      };
+      rec.start();
+    }
+
+    function triggerPhotoWarning() {
+      alert(state.lang === "hi"
+        ? "Savdhani: Photo bhejne se pehle Aadhaar/card number, OTP, PIN ya personal detail blur/crop kar dein."
+        : "Caution: Crop or blur sensitive details like ID numbers, cards, OTPs, or PINs before uploading.");
+      document.getElementById("photoInput").click();
+    }
+
+    function handlePhotoSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const note = state.lang === "hi"
+        ? `Photo select hui (${file.name}). Ab apni problem likh kar 'Sahi Raasta Dekhein' dabayein.`
+        : `Photo selected (${file.name}). Now describe your issue and tap Get Guidance.`;
+      document.getElementById("homeNotice").textContent = note;
+    }
+
+    function buildStructuredResponse(problemText) {
+      const isHi = state.lang === "hi";
+      const clean = problemText.trim();
+
+      if (isHi) {
+        return {
+          title: clean.slice(0, 55) + (clean.length > 55 ? "..." : ""),
+          problem: `Aapki samasya: "${clean}"`,
+          immediate: "Sabse pehle koi bhi jaldbazi ya unauthorized link/number par call karne se bachein; zaroori details/receipt surakshit rakhein.",
+          steps: "1. Samasya se judi saari asli details (date, reference/transaction ID, error message) likh kar rakhein.\n2. Official app, official portal ya verified customer support ke madhyam se agla step lein.\n3. Complaint ya application ka acknowledgement/reference number save karein.",
+          checklist: [
+            "Zaroori ID / Reference / Transaction details",
+            "Relevant screenshot ya receipt (sensitive info hidden)",
+            "Official portal ya helpline record"
+          ],
+          source: "Relevant Official Portal / Bank / Service Provider (Verify live URL before acting)",
+          warning: "Yeh sirf guidance hai; kisi outcome/refund ki guarantee nahi hai. OTP, UPI PIN, ATM PIN, CVV ya password kabhi share na karein."
+        };
+      }
+
+      return {
+        title: clean.slice(0, 55) + (clean.length > 55 ? "..." : ""),
+        problem: `Your issue: "${clean}"`,
+        immediate: "Avoid unverified links or unknown numbers; keep any reference IDs or receipts safe.",
+        steps: "1. Collect key facts (date, reference/transaction ID, exact error or status).\n2. Follow the official portal, app support, or verified escalation channel.\n3. Save your ticket/acknowledgement number for tracking.",
+        checklist: [
+          "Relevant ID / Reference / Transaction details",
+          "Supporting proof/receipt (sensitive numbers hidden)",
+          "Official source link or support ticket ID"
+        ],
+        source: "Respective Official Portal / Bank / Service Channel (Verify current rules)",
+        warning: "Guidance only; outcomes or timelines are not guaranteed. Never share OTP, UPI PIN, ATM PIN, CVV, or passwords."
+      };
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById("askInput");
+      const status = document.getElementById("askStatus");
+      const text = input.value.trim();
+      if (!text) {
+        status.textContent = state.lang === "hi" ? "Kripya pehle apni problem likhein." : "Please type a problem first.";
+        return;
+      }
+
+      status.textContent = state.lang === "hi" ? "Jawab taiyar ho raha hai..." : "Preparing response...";
+      state.messages.push({ role: "user", text: text });
+      input.value = "";
+      renderChat();
+      saveState();
+
+      let structured = null;
+      try {
+        const res = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: text, lang: state.lang })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.structured) {
+            structured = data.structured;
+          }
+        }
+      } catch (err) {
+        // Fallback when backend endpoint is not yet connected
+      }
+
+      if (!structured) {
+        structured = buildStructuredResponse(text);
+      }
+
+      state.messages.push({ role: "ai", data: structured });
+      status.textContent = "";
+      renderChat();
+      saveState();
+    }
+
+    function clearChat() {
+      state.messages = [];
+      saveState();
+      renderChat();
+    }
+
+    function renderChat() {
+      const box = document.getElementById("chatBox");
+      const isHi = state.lang === "hi";
+      if (!state.messages.length) {
+        box.innerHTML = `<div class="card" style="color:var(--muted); font-size:14px;">${
+          isHi
+            ? "Yahan aap kisi bhi samasya ke baare mein pooch sakte hain. Jawab 7 structured hisson mein aayega."
+            : "Ask about any everyday problem here. Answers follow a clear structured format."
+        }</div>`;
+        return;
+      }
+
+      box.innerHTML = state.messages.map((m, idx) => {
+        if (m.role === "user") {
+          return `<div class="msg-user">${escapeHtml(m.text)}</div>`;
+        }
+        const d = m.data;
+        const checklistHtml = (d.checklist || [])
+          .map((item) => `• ${escapeHtml(item)}`)
+          .join("\n");
+
+        return `
+          <div class="ai-card">
+            <div class="ai-block">
+              <div class="ai-label">${isHi ? "1. Aapki Problem" : "1. Problem Summary"}</div>
+              <p class="ai-text">${escapeHtml(d.problem)}</p>
+            </div>
+            <div class="ai-block">
+              <div class="ai-label">${isHi ? "2. Abhi Kya Karein" : "2. Immediate Safe Step"}</div>
+              <p class="ai-text">${escapeHtml(d.immediate)}</p>
+            </div>
+            <div class="ai-block">
+              <div class="ai-label">${isHi ? "3. Step-by-Step Solution" : "3. Step-by-Step Guide"}</div>
+              <p class="ai-text">${escapeHtml(d.steps)}</p>
+            </div>
+            <div class="ai-block">
+              <div class="ai-label">${isHi ? "4. Kya Chahiye (Checklist)" : "4. Checklist"}</div>
+              <p class="ai-text">${escapeHtml(checklistHtml)}</p>
+            </div>
+            <div class="ai-block">
+              <div class="ai-label">${isHi ? "5. Official Source" : "5. Official Source"}</div>
+              <p class="ai-text">${escapeHtml(d.source)}</p>
+            </div>
+            <div class="ai-block">
+              <div class="ai-label">${isHi ? "6. Dhyan Rakhein" : "6. Risks & Caution"}</div>
+              <p class="ai-text">${escapeHtml(d.warning)}</p>
+            </div>
+            <div class="ai-footer">
+              <button type="button" class="mini-btn" onclick="alert('${isHi ? "Dhanyavaad! Feedback note hua." : "Thanks! Feedback noted."}')">👍 ${isHi ? "Helpful" : "Helpful"}</button>
+              <button type="button" class="mini-btn" onclick="alert('${isHi ? "Report note hui. Official source zaroor check karein." : "Issue noted. Always verify official sources."}')">👎 ${isHi ? "Issue" : "Issue"}</button>
+              <button type="button" class="mini-btn save" onclick="saveCaseFromMessage(${idx})">💾 ${isHi ? "7. Save as Case" : "7. Save as Case"}</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function saveCaseFromMessage(msgIndex) {
+      const msg = state.messages[msgIndex];
+      if (!msg || msg.role !== "ai") return;
+      const d = msg.data;
+      const newCase = {
+        id: "case_" + Date.now(),
+        title: d.title || "Saved Problem",
+        summary: d.problem,
+        nextStep: d.immediate,
+        checklist: (d.checklist || []).map((text) => ({ text, done: false })),
+        status: "In Progress",
+        createdAt: new Date().toLocaleDateString("en-IN")
+      };
+      state.cases.unshift(newCase);
+      saveState();
+      renderCases();
+      alert(state.lang === "hi" ? "Case 'My Cases' mein save ho gaya hai!" : "Case saved to 'My Cases'!");
+    }
+
+    function toggleChecklistItem(caseId, itemIdx) {
+      const c = state.cases.find((item) => item.id === caseId);
+      if (!c || !c.checklist[itemIdx]) return;
+      c.checklist[itemIdx].done = !c.checklist[itemIdx].done;
+      saveState();
+      renderCases();
+    }
+
+    function updateCaseStatus(caseId, newStatus) {
+      const c = state.cases.find((item) => item.id === caseId);
+      if (!c) return;
+      c.status = newStatus;
+      saveState();
+      renderCases();
+    }
+
+    function deleteCase(caseId) {
+      const ok = confirm(state.lang === "hi" ? "Kya aap is case ko delete karna chahte hain?" : "Delete this saved case?");
+      if (!ok) return;
+      state.cases = state.cases.filter((item) => item.id !== caseId);
+      saveState();
+      renderCases();
+    }
+
+    function renderCases() {
+      const isHi = state.lang === "hi";
+      const query = (document.getElementById("caseSearchInput")?.value || "").trim().toLowerCase();
+      const filtered = state.cases.filter((c) =>
+        !query ||
+        c.title.toLowerCase().includes(query) ||
+        c.summary.toLowerCase().includes(query)
+      );
+
+      const recentBox = document.getElementById("homeRecentCases");
+      if (recentBox) {
+        if (!state.cases.length) {
+          recentBox.innerHTML = `<div class="card" style="font-size:14px; color:var(--muted);">${
+            isHi ? "Abhi koi case save nahi hai. Ask AI se kisi bhi jawab ko 'Save as Case' karein." : "No saved cases yet. Tap 'Save as Case' on any AI answer."
+          }</div>`;
+        } else {
+          recentBox.innerHTML = state.cases.slice(0, 2).map((c) => `
+            <div class="list-item">
+              <span class="badge">${escapeHtml(c.status)} • ${escapeHtml(c.createdAt)}</span>
+              <div style="font-weight:800; font-size:15px; margin-bottom:4px;">${escapeHtml(c.title)}</div>
+              <div style="font-size:13px; color:var(--muted);">${escapeHtml(c.nextStep)}</div>
+            </div>
+          `).join("");
+        }
+      }
+
+      const listEl = document.getElementById("casesList");
+      if (!listEl) return;
+      if (!filtered.length) {
+        listEl.innerHTML = `<div class="card" style="font-size:14px; color:var(--muted);">${
+          isHi ? "Koi matching case nahi mila." : "No matching cases found."
+        }</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map((c) => {
+        const checks = (c.checklist || []).map((chk, idx) => `
+          <label class="checklist-row">
+            <input type="checkbox" ${chk.done ? "checked" : ""} onchange="toggleChecklistItem('${c.id}', ${idx})" />
+            <span style="${chk.done ? "text-decoration:line-through; color:var(--muted);" : ""}">${escapeHtml(chk.text)}</span>
+          </label>
+        `).join("");
+
+        return `
+          <div class="list-item">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <span class="badge">${escapeHtml(c.createdAt)}</span>
+              <select style="width:auto; padding:6px 8px; font-size:12px;" onchange="updateCaseStatus('${c.id}', this.value)">
+                <option value="In Progress" ${c.status === "In Progress" ? "selected" : ""}>In Progress</option>
+                <option value="Completed" ${c.status === "Completed" ? "selected" : ""}>Completed</option>
+              </select>
+            </div>
+            <div style="font-weight:800; font-size:16px; margin:4px 0;">${escapeHtml(c.title)}</div>
+            <p style="font-size:14px; margin:4px 0 8px; color:var(--muted);">${escapeHtml(c.nextStep)}</p>
+            <div>${checks}</div>
+            <div style="margin-top:10px; text-align:right;">
+              <button type="button" class="mini-btn" onclick="deleteCase('${c.id}')">🗑 ${isHi ? "Delete" : "Delete"}</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderGuides() {
+      const isHi = state.lang === "hi";
+      const el = document.getElementById("guidesList");
+      if (!el) return;
+
+      el.innerHTML = DEFAULT_GUIDES.map((g) => `
+        <div class="list-item">
+          <span class="badge">${escapeHtml(isHi ? g.categoryHi : g.categoryEn)} • ${isHi ? "Reviewed" : "Reviewed"}: ${escapeHtml(g.updated)}</span>
+          <div style="font-weight:800; font-size:16px; margin-bottom:6px;">${escapeHtml(isHi ? g.titleHi : g.titleEn)}</div>
+          <p style="font-size:14px; line-height:1.5; white-space:pre-line; margin:0 0 8px;">${escapeHtml(isHi ? g.stepsHi : g.stepsEn)}</p>
+          <div style="font-size:12px; color:var(--muted);"><strong>Source:</strong> ${escapeHtml(g.source)}</div>
+        </div>
+      `).join("");
+    }
+
+    function deleteAllUserData() {
+      const ok = confirm(
+        state.lang === "hi"
+          ? "Kya aap apna saara saved chat aur case data delete karna chahte hain?"
+          : "Are you sure you want to delete all saved chats and cases?"
+      );
+      if (!ok) return;
+      state.cases = [];
+      state.messages = [];
+      saveState();
+      renderChat();
+      renderCases();
+      document.getElementById("profileStatus").textContent = state.lang === "hi"
+        ? "Saara local user data delete kar diya gaya hai."
+        : "All local user data has been deleted.";
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    applyTranslations();
+  </script>
+</body>
+</html>
