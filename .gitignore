@@ -1,0 +1,16 @@
+# Environment & secrets (never commit API keys or local secrets)
+.env
+.env.*
+!.env.example
+
+# Dependencies & build outputs
+node_modules/
+dist/
+build/
+.vercel/
+.output/
+
+# OS & mobile/editor temporary files
+.DS_Store
+Thumbs.db
+*.log
