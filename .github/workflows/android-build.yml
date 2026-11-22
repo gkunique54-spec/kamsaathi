@@ -1,0 +1,23 @@
+name: KAAMSAATHI Android Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check KAAMSAATHI files
+        run: |
+          test -f index.html
+          test -f package.json
+          test -f capacitor.config.json
+          echo "All core files are present."
