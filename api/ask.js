@@ -4,110 +4,78 @@ export default async function handler(req, res) {
   }
 
   try {
-    let body = req.body;
-    if (!body) {
-      body = {};
-    } else if (typeof body === "string") {
-      body = JSON.parse(body);
-    }
+    const { query, lang } = req.body || {};
+    const userQuestion = String(query || "").trim();
 
-    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
-    const lang = body.lang === "en" ? "en" : "hi";
-
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
-    }
-
-    if (prompt.length > 2000) {
-      return res.status(400).json({ error: "Prompt is too long" });
+    if (!userQuestion) {
+      return res.status(400).json({ error: "Question is required" });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(503).json({
-        error: "Server AI key not configured",
-        fallback: true
+      return res.status(500).json({
+        error: "GEMINI_API_KEY missing in Vercel Environment Variables",
       });
     }
 
-    const systemInstruction = [
-      "You are KAAMSAATHI (\"Har Samasya Ka Sahi Raasta\"), an India-first everyday problem-solving assistant.",
-      "Rules:",
-      "1. Reply strictly in " + (lang === "hi" ? "simple everyday Hindi (Devanagari script)" : "simple clear English") + ".",
-      "2. You are NOT an official government, bank, court, or service-provider representative. Never claim official status or guarantee refunds, approvals, or outcomes.",
-      "3. Never ask for OTP, UPI PIN, ATM PIN, CVV, passwords, or full card/ID numbers.",
-      "4. Never invent fake URLs, fake phone numbers, fake deadlines, or unverified legal/financial rules. If unsure, say so clearly and advise checking official channels.",
-      "5. Return ONLY valid JSON with these exact keys:",
-      "{\"title\":\"short 4-8 word title\",\"problem\":\"one-line clear summary\",\"immediate\":\"first safe practical next step\",\"steps\":\"numbered step-by-step instructions separated by newlines\",\"checklist\":[\"item 1\",\"item 2\"],\"source\":\"official source/channel name and note to verify live portal/rules\",\"warning\":\"risks, fees, deadlines, uncertainty, and OTP/PIN safety note\"}"
-    ].join("\n");
+    const systemInstruction = `You are KAAMSAATHI ("Har Samasya Ka Sahi Raasta"), a helpful, practical everyday problem-solving assistant for Indian users.
+Rules:
+1. Reply in the SAME language/style the user used (if user writes in Hindi or Hinglish like "Ai se video kaise banay", reply in clear, easy Hinglish/Hindi; if English, reply in clear English).
+2. Give direct, practical, accurate, and genuinely useful answers tailored to the exact question—NEVER give generic complaint templates for general how-to, tech, career, study, or creative questions.
+3. Safety: Never ask for or encourage sharing OTP, UPI PIN, ATM PIN, CVV, passwords, or Aadhaar/card numbers. Never claim to be an official government or bank portal.
+4. Return ONLY valid JSON with these exact keys:
+{
+  "summary": "1-2 line direct answer/summary of the user's question",
+  "safeStep": "Most important first action or safety/smart tip relevant to this exact topic",
+  "steps": ["Clear step 1", "Clear step 2", "Clear step 3", "Clear step 4"],
+  "checklist": ["Helpful tool/document/point 1", "Helpful tool/document/point 2", "Helpful tool/document/point 3"],
+  "officialHelp": "Best verified platform, official app/website, or reliable resource for this topic",
+  "warning": "Common mistake or scam to avoid for this topic",
+  "nextAction": "What the user should do right now in 1 minute"
+}`;
 
-    const endpoint =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
-      encodeURIComponent(apiKey);
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemInstruction }],
+          },
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `UI Language preference: ${lang || "auto"}\nUser Question: ${userQuestion}`,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.5,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
 
-    const apiRes = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: [{ text: systemInstruction }]
-        },
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          responseMimeType: "application/json"
-        }
-      })
-    });
+    const data = await response.json();
 
-    if (!apiRes.ok) {
-      return res.status(502).json({ error: "Upstream AI request failed" });
+    if (!response.ok) {
+      const apiErr = data?.error?.message || "Gemini API request failed";
+      return res.status(response.status).json({ error: apiErr });
     }
 
-    const apiData = await apiRes.json();
-    const candidate = apiData && apiData.candidates && apiData.candidates[0];
-    const part = candidate && candidate.content && candidate.content.parts && candidate.content.parts[0];
-    const rawText = part && typeof part.text === "string" ? part.text.trim() : "";
+    const rawText =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const parsed = JSON.parse(rawText);
 
-    if (!rawText) {
-      return res.status(502).json({ error: "Empty response from AI" });
-    }
-
-    let parsed;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (_) {
-      const cleaned = rawText.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
-      parsed = JSON.parse(cleaned);
-    }
-
-    const structured = {
-      title: typeof parsed.title === "string" && parsed.title.trim() ? parsed.title.trim() : prompt.slice(0, 50),
-      problem: typeof parsed.problem === "string" && parsed.problem.trim() ? parsed.problem.trim() : prompt,
-      immediate: typeof parsed.immediate === "string" ? parsed.immediate.trim() : "",
-      steps: typeof parsed.steps === "string" ? parsed.steps.trim() : "",
-      checklist: Array.isArray(parsed.checklist)
-        ? parsed.checklist.map((item) => String(item).trim()).filter(Boolean)
-        : [],
-      source:
-        typeof parsed.source === "string" && parsed.source.trim()
-          ? parsed.source.trim()
-          : "Official channel — verify live portal and rules",
-      warning:
-        typeof parsed.warning === "string" && parsed.warning.trim()
-          ? parsed.warning.trim()
-          : "Never share OTP, UPI PIN, ATM PIN, CVV, or passwords."
-    };
-
-    return res.status(200).json({ structured });
+    return res.status(200).json({ ok: true, result: parsed });
   } catch (err) {
-    return res.status(500).json({ error: "Server error while processing request" });
+    return res.status(500).json({
+      error: err?.message || "Server error in /api/ask",
+    });
   }
 }
