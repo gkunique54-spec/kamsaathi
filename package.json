@@ -2,12 +2,20 @@
   "name": "kaamsaathi",
   "version": "0.1.0",
   "private": true,
-  "description": "KAAMSAATHI — Har Samasya Ka Sahi Raasta (Bilingual everyday problem-solving assistant)",
+  "description": "KAAMSAATHI — Har Samasya Ka Sahi Raasta",
   "type": "module",
   "scripts": {
-    "start": "echo \"Static frontend + serverless /api/ask ready\""
+    "prepare:web": "node -e \"const fs=require('fs'); fs.mkdirSync('www',{recursive:true}); fs.copyFileSync('index.html','www/index.html');\"",
+    "cap:sync": "npm run prepare:web && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }
