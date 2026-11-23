@@ -1,10 +1,10 @@
-name: KAAMSAATHI Android Build
+name: KAAMSAATHI Gradle Build
 
 on:
   workflow_dispatch:
 
 jobs:
-  verify-project:
+  gradle-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -15,9 +15,35 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Check KAAMSAATHI files
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies and prepare web folder
         run: |
-          test -f index.html
-          test -f package.json
-          test -f capacitor.config.json
-          echo "All core files are present."
+          npm install
+          npm run prepare:web
+
+      - name: Add Android platform if missing
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: Run Gradle Build (Debug APK)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaamsaathi-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
